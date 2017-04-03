@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Media;
@@ -17,6 +17,9 @@ namespace Edmon
         public Edmon()
         {
             InitializeComponent();
+
+            // Suspend the game timer until the user starts the game
+            GameTimer.Stop();
 
             // Critical assumption here is that all buttons must follow the 
             // naming pattern of "button[n]" where [n] is 1-4.
@@ -37,9 +40,15 @@ namespace Edmon
         {
             if (playLevel != 0)
             {
+                // Stop the timer to give the user a chance to decide if they really want to 
+                // start a new game. (Note this allows user to bypass timer restriction.)
+                GameTimer.Stop();
                 if (MessageBox.Show("Are you sure you want to abandon this game and start again?",
                     "Start New?", MessageBoxButtons.YesNo) == DialogResult.No)
+                {
+                    GameTimer.Start();
                     return;
+                }
             }
             InitializeGame();
         }
@@ -61,6 +70,7 @@ namespace Edmon
         /// Populate sequence dictionary with the random sequence of numbers from 1-4.
         /// Initialize the playLevel and currentSequence variables.
         /// Call PlaySequence.
+        /// Start GameTimer
         /// </summary>
         private void InitializeGame()
         {
@@ -73,6 +83,7 @@ namespace Edmon
             playLevel = 0;
             currentSequence = 1;
             PlaySequence();
+            GameTimer.Start();
         }
 
         /// <summary>
@@ -103,13 +114,16 @@ namespace Edmon
             if (currentSequence == 0) // Game has not started, so do nothing
                 return;
 
-            // User clicked the wrong tile, game over
+            // Stop the timer while we check the input (and play the next sequence if necessary)
+            GameTimer.Stop(); 
+
+            // If user clicked the wrong tile, then game over
             if (buttonNumber != sequence[currentSequence])
             {
                 PlaySound(5);
                 MessageBox.Show("Incorrect selection! You successfully completed " + (playLevel - 1) + " levels " +
                     "on this round.", "Game Over", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                CheckForRecordAndReInitialize();
+                CheckForRecordAndResetGame();
                 return;
             }
 
@@ -121,7 +135,7 @@ namespace Edmon
             {
                 MessageBox.Show("Congratulations! You have completed the final level (" + maxLevel + 
                     ")! You must be super-human!");
-                CheckForRecordAndReInitialize();
+                CheckForRecordAndResetGame();
                 return;
             }
 
@@ -133,9 +147,8 @@ namespace Edmon
                 currentSequence = 1;
             }
 
-            // TODO: We could introduce a timer element to limit the user's response time
-            // based on the currentSequence level.
-            // i.e., to help prevent cheating by means of recording the sequence.
+            // Restart the timer - user has 7 seconds to make the next move
+            GameTimer.Start(); 
         }
 
         /// <summary>
@@ -166,9 +179,9 @@ namespace Edmon
         /// At the end of each game, check if a new record was set (sets the new record info if necessary),
         /// and re-initialize currentSequence and playLevel so user can't replay the same game sequence.
         /// </summary>
-        private void CheckForRecordAndReInitialize()
+        private void CheckForRecordAndResetGame()
         {
-            if (playLevel - 1 > Records.RecordLevel())
+            if (playLevel - 1 > Records.RecordLevel)
             {
                 string name = "NAME";
                 if (ShowInputDialog(ref name) == DialogResult.OK)
@@ -181,11 +194,28 @@ namespace Edmon
             playLevel = 0;
         }
 
+        /// <summary>
+        /// Updates the record holder labels on the form
+        /// </summary>
         private void RefreshRecordLabels()
         {
-            RecordLabel.Text = "Current Record: " + Records.RecordLevel();
+            RecordLabel.Text = "Current Record: " + Records.RecordLevel;
             RecordHolderLabel.Text = "Record Holder: " + 
-                (string.IsNullOrEmpty(Records.RecordHolder()) ? "None" : Records.RecordHolder());
+                (string.IsNullOrEmpty(Records.RecordHolder) ? "None" : Records.RecordHolder);
+        }
+
+        /// <summary>
+        /// The game timer allows a max of 7 seconds between tile clicks
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void GameTimer_Tick(object sender, EventArgs e)
+        {
+            GameTimer.Stop();
+            PlaySound(5);
+            MessageBox.Show("Time's up! You successfully completed " + (playLevel - 1) + " levels " +
+                "on this round.", "Game Over", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            CheckForRecordAndResetGame();
         }
 
         #region DialogHelper
@@ -239,5 +269,6 @@ namespace Edmon
             return result;
         }
         #endregion
+
     }
 }
