@@ -1,4 +1,4 @@
-﻿namespace Edmon
+namespace Edmon
 {
     partial class Edmon
     {
@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.StartButton = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -35,6 +36,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.RecordLabel = new System.Windows.Forms.Label();
             this.RecordHolderLabel = new System.Windows.Forms.Label();
+            this.GameTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // StartButton
@@ -113,6 +115,12 @@
             this.RecordHolderLabel.TabIndex = 10;
             this.RecordHolderLabel.Text = "Record Holder: ";
             // 
+            // GameTimer
+            // 
+            this.GameTimer.Enabled = true;
+            this.GameTimer.Interval = 7000;
+            this.GameTimer.Tick += new System.EventHandler(this.GameTimer_Tick);
+            // 
             // Edmon
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -141,6 +149,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label RecordLabel;
         private System.Windows.Forms.Label RecordHolderLabel;
+        private System.Windows.Forms.Timer GameTimer;
     }
 }
 
