@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Windows.Forms;
 
 namespace Edmon
 {
@@ -9,53 +10,34 @@ namespace Edmon
     /// </summary>
     static class Records
     {
-        static string recordHolder;
-        static int record;
-        static string fileLocation = Environment.CurrentDirectory + "\\RecordInfo.bin";
+        // User must have write access to CurrentDirectory for this functionality to work correctly
+        static readonly string fileLocation = Environment.CurrentDirectory + "\\RecordInfo.bin";
+        static RecordObject recordInfo;
 
-        public static void SetNewRecord(string name, int level)
+        public static string RecordHolder
         {
-            try
+            get
             {
-                RecordObject recordInfo = new RecordObject();
-                recordInfo.recordHolder = name;
-                recordInfo.recordLevel = level;
-                IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                Stream fileStream = new FileStream(fileLocation, FileMode.Create, FileAccess.Write, FileShare.None);
-                formatter.Serialize(fileStream, recordInfo);
-                fileStream.Close();
-            }
-            catch (Exception)
-            {
-                // Do nothing if the file is corrupted
-            }
-            finally
-            {
-                recordHolder = name;
-                record = level;
+                if (string.IsNullOrEmpty(recordInfo.recordHolder))
+                    recordInfo = GetRecordInfo();
+                return recordInfo.recordHolder;
             }
         }
 
-        public static string RecordHolder()
+        public static int RecordLevel
         {
-            if (recordHolder == null)
+            get
             {
-                RecordObject recordInfo = GetRecordInfo();
-                recordHolder = recordInfo.recordHolder;
+                if (recordInfo.recordLevel == 0)
+                    recordInfo = GetRecordInfo();
+                return recordInfo.recordLevel;
             }
-            return recordHolder;
         }
 
-        public static int RecordLevel()
-        {
-            if (record == 0)
-            {
-                RecordObject recordInfo = GetRecordInfo();
-                record = recordInfo.recordLevel;
-            }
-            return record;
-        }
-
+        /// <summary>
+        /// Get the record holder information from local file
+        /// </summary>
+        /// <returns></returns>
         private static RecordObject GetRecordInfo()
         {
             if (File.Exists(fileLocation))
@@ -63,18 +45,44 @@ namespace Edmon
                 try
                 {
                     IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                    Stream serialStream = new FileStream(fileLocation, FileMode.Open, FileAccess.Read, FileShare.Read);
-                    RecordObject recordInfo = (RecordObject)formatter.Deserialize(serialStream);
-                    serialStream.Close();
-                    return recordInfo;
+                    using (Stream serialStream = new FileStream(fileLocation, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        RecordObject recordInfo = (RecordObject)formatter.Deserialize(serialStream);
+                        return recordInfo;
+                    }
                 }
                 catch (Exception)
                 {
+                    // Do nothing if the file can't be read (e.g., corrupted due to manual editing)
+                    // Just return blank RecordObject
                     return new RecordObject();
                 }
             }
             else
                 return new RecordObject();
+        }
+
+        /// <summary>
+        /// Serialize the new record info to file
+        /// </summary>
+        /// <param name="name">Name of record holder</param>
+        /// <param name="level">Number of game levels reached</param>
+        public static void SetNewRecord(string name, int level)
+        {
+            recordInfo.recordHolder = name;
+            recordInfo.recordLevel = level;
+            try
+            {
+                IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                using (Stream fileStream = new FileStream(fileLocation, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    formatter.Serialize(fileStream, recordInfo);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("There was an error saving your record to disk:\n" + ex.Message);
+            }
         }
 
         [Serializable]
