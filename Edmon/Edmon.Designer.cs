@@ -29,25 +29,25 @@ namespace Edmon
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.StartButton = new System.Windows.Forms.Button();
+            this.startButton = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
-            this.RecordLabel = new System.Windows.Forms.Label();
-            this.RecordHolderLabel = new System.Windows.Forms.Label();
-            this.GameTimer = new System.Windows.Forms.Timer(this.components);
+            this.recordLabel = new System.Windows.Forms.Label();
+            this.recordHolderLabel = new System.Windows.Forms.Label();
+            this.gameTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
-            // StartButton
+            // startButton
             // 
-            this.StartButton.Location = new System.Drawing.Point(174, 60);
-            this.StartButton.Name = "StartButton";
-            this.StartButton.Size = new System.Drawing.Size(81, 30);
-            this.StartButton.TabIndex = 1;
-            this.StartButton.Text = "Start Game";
-            this.StartButton.UseVisualStyleBackColor = true;
-            this.StartButton.Click += new System.EventHandler(this.StartButton_Click);
+            this.startButton.Location = new System.Drawing.Point(174, 60);
+            this.startButton.Name = "startButton";
+            this.startButton.Size = new System.Drawing.Size(81, 30);
+            this.startButton.TabIndex = 1;
+            this.startButton.Text = "Start Game";
+            this.startButton.UseVisualStyleBackColor = true;
+            this.startButton.Click += new System.EventHandler(this.startButton_Click);
             // 
             // button4
             // 
@@ -99,36 +99,36 @@ namespace Edmon
             // 
             // RecordLabel
             // 
-            this.RecordLabel.AutoSize = true;
-            this.RecordLabel.Location = new System.Drawing.Point(115, 404);
-            this.RecordLabel.Name = "RecordLabel";
-            this.RecordLabel.Size = new System.Drawing.Size(85, 13);
-            this.RecordLabel.TabIndex = 9;
-            this.RecordLabel.Text = "Current Record: ";
+            this.recordLabel.AutoSize = true;
+            this.recordLabel.Location = new System.Drawing.Point(115, 404);
+            this.recordLabel.Name = "RecordLabel";
+            this.recordLabel.Size = new System.Drawing.Size(85, 13);
+            this.recordLabel.TabIndex = 9;
+            this.recordLabel.Text = "Current Record: ";
             // 
             // RecordHolderLabel
             // 
-            this.RecordHolderLabel.AutoSize = true;
-            this.RecordHolderLabel.Location = new System.Drawing.Point(115, 439);
-            this.RecordHolderLabel.Name = "RecordHolderLabel";
-            this.RecordHolderLabel.Size = new System.Drawing.Size(82, 13);
-            this.RecordHolderLabel.TabIndex = 10;
-            this.RecordHolderLabel.Text = "Record Holder: ";
+            this.recordHolderLabel.AutoSize = true;
+            this.recordHolderLabel.Location = new System.Drawing.Point(115, 439);
+            this.recordHolderLabel.Name = "RecordHolderLabel";
+            this.recordHolderLabel.Size = new System.Drawing.Size(82, 13);
+            this.recordHolderLabel.TabIndex = 10;
+            this.recordHolderLabel.Text = "Record Holder: ";
             // 
-            // GameTimer
+            // gameTimer
             // 
-            this.GameTimer.Enabled = true;
-            this.GameTimer.Interval = 7000;
-            this.GameTimer.Tick += new System.EventHandler(this.GameTimer_Tick);
+            this.gameTimer.Enabled = true;
+            this.gameTimer.Interval = 7000;
+            this.gameTimer.Tick += new System.EventHandler(this.gameTimer_Tick);
             // 
             // Edmon
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(447, 501);
-            this.Controls.Add(this.RecordHolderLabel);
-            this.Controls.Add(this.RecordLabel);
-            this.Controls.Add(this.StartButton);
+            this.Controls.Add(this.recordHolderLabel);
+            this.Controls.Add(this.recordLabel);
+            this.Controls.Add(this.startButton);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
@@ -142,14 +142,14 @@ namespace Edmon
 
         #endregion
 
-        private System.Windows.Forms.Button StartButton;
+        private System.Windows.Forms.Button startButton;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Label RecordLabel;
-        private System.Windows.Forms.Label RecordHolderLabel;
-        private System.Windows.Forms.Timer GameTimer;
+        private System.Windows.Forms.Label recordLabel;
+        private System.Windows.Forms.Label recordHolderLabel;
+        private System.Windows.Forms.Timer gameTimer;
     }
 }
 
