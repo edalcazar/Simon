@@ -19,7 +19,7 @@ namespace Edmon
             get
             {
                 if (string.IsNullOrEmpty(recordInfo.recordHolder))
-                    recordInfo = GetRecordInfo();
+                    recordInfo = getRecordInfo();
                 return recordInfo.recordHolder;
             }
         }
@@ -29,7 +29,7 @@ namespace Edmon
             get
             {
                 if (recordInfo.recordLevel == 0)
-                    recordInfo = GetRecordInfo();
+                    recordInfo = getRecordInfo();
                 return recordInfo.recordLevel;
             }
         }
@@ -38,7 +38,7 @@ namespace Edmon
         /// Get the record holder information from local file
         /// </summary>
         /// <returns></returns>
-        private static RecordObject GetRecordInfo()
+        private static RecordObject getRecordInfo()
         {
             if (File.Exists(fileLocation))
             {
