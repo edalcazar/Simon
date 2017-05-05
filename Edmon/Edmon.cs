@@ -19,16 +19,16 @@ namespace Edmon
             InitializeComponent();
 
             // Suspend the game timer until the user starts the game
-            GameTimer.Stop();
+            gameTimer.Stop();
 
             // Critical assumption here is that all buttons must follow the 
             // naming pattern of "button[n]" where [n] is 1-4.
-            button1.Click += Handle_Click;
-            button2.Click += Handle_Click;
-            button3.Click += Handle_Click;
-            button4.Click += Handle_Click;
+            button1.Click += handle_Click;
+            button2.Click += handle_Click;
+            button3.Click += handle_Click;
+            button4.Click += handle_Click;
 
-            RefreshRecordLabels();
+            refreshRecordLabels();
         }
 
         /// <summary>
@@ -36,21 +36,21 @@ namespace Edmon
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void StartButton_Click(object sender, EventArgs e)
+        private void startButton_Click(object sender, EventArgs e)
         {
             if (playLevel != 0)
             {
                 // Stop the timer to give the user a chance to decide if they really want to 
                 // start a new game. (Note this allows user to bypass timer restriction.)
-                GameTimer.Stop();
+                gameTimer.Stop();
                 if (MessageBox.Show("Are you sure you want to abandon this game and start again?",
                     "Start New?", MessageBoxButtons.YesNo) == DialogResult.No)
                 {
-                    GameTimer.Start();
+                    gameTimer.Start();
                     return;
                 }
             }
-            InitializeGame();
+            initializeGame();
         }
 
         /// <summary>
@@ -58,11 +58,21 @@ namespace Edmon
         /// </summary>
         /// <param name="sender">The button clicked</param>
         /// <param name="e"></param>
-        private void Handle_Click(object sender, EventArgs e)
+        private void handle_Click(object sender, EventArgs e)
         {
             Button tileClicked = (Button)sender;
-            string buttonNumber = tileClicked.Name.Substring(6, 1);
-            CheckSequence(int.Parse(buttonNumber));
+            int buttonNumber = int.Parse(tileClicked.Name.Substring(6, 1));
+
+            // If the right button was clicked, then...
+            if (validClick(buttonNumber))
+            {
+                // Play the sound corresponding to the tile clicked
+                playSound(buttonNumber);
+
+                // Move to next sequence (and next level if necessary).
+                currentSequence++;
+                resumeNextSequence();
+            }
         }
 
         /// <summary>
@@ -72,7 +82,7 @@ namespace Edmon
         /// Call PlaySequence.
         /// Start GameTimer
         /// </summary>
-        private void InitializeGame()
+        private void initializeGame()
         {
             Random randomNumber = new Random();
             sequence.Clear();
@@ -82,14 +92,14 @@ namespace Edmon
             }
             playLevel = 0;
             currentSequence = 1;
-            PlaySequence();
-            GameTimer.Start();
+            playSequence();
+            gameTimer.Start();
         }
 
         /// <summary>
         /// "Hits" each of the tiles in the game sequence up to the currentSequence
         /// </summary>
-        private void PlaySequence()
+        private void playSequence()
         {
             for (int i = 1; i <= currentSequence; i++)
             {
@@ -97,7 +107,7 @@ namespace Edmon
                 Button tileHit = (Button)Controls.Find("button" + sequence[i].ToString(), false)[0];
                 tileHit.Hide();
                 Thread.Sleep(10);
-                PlaySound(sequence[i]);
+                playSound(sequence[i]);
                 Thread.Sleep(10);
                 tileHit.Show();
                 Refresh();
@@ -109,53 +119,58 @@ namespace Edmon
         /// Check if the tile clicked corresponds to the currentSequence value
         /// </summary>
         /// <param name="buttonNumber">The button number of the tile that was clicked.</param>
-        private void CheckSequence(int buttonNumber)
+        /// <returns>bool: true if correct button was clicked, false if not, or if no game is playing.</returns>
+        private bool validClick(int buttonNumber)
         {
             if (currentSequence == 0) // Game has not started, so do nothing
-                return;
+                return false;
 
             // Stop the timer while we check the input (and play the next sequence if necessary)
-            GameTimer.Stop(); 
+            gameTimer.Stop();
 
             // If user clicked the wrong tile, then game over
             if (buttonNumber != sequence[currentSequence])
             {
-                PlaySound(5);
+                playSound(5);
                 MessageBox.Show("Incorrect selection! You successfully completed " + (playLevel - 1) + " levels " +
                     "on this round.", "Game Over", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                CheckForRecordAndResetGame();
-                return;
+                checkForRecordAndResetGame();
+                return false;
             }
+            return true;
+        }
 
-            // Play the sound corresponding to the tile clicked
-            PlaySound(buttonNumber);
-
-            currentSequence++;
+        /// <summary>
+        /// Check if user completed the entire round - if so, move to the next level
+        /// </summary>
+        private void resumeNextSequence()
+        {
+            // Just in case the user reaches the end...
             if (currentSequence > maxLevel)
             {
                 MessageBox.Show("Congratulations! You have completed the final level (" + maxLevel + 
                     ")! You must be super-human!");
-                CheckForRecordAndResetGame();
+                checkForRecordAndResetGame();
                 return;
             }
 
-            // Check if user completed the entire round - if so, move to the next level
             if (currentSequence > playLevel)
             {
+                // Round complete, move to next level.
                 Thread.Sleep(500);
-                PlaySequence();
+                playSequence();
                 currentSequence = 1;
             }
 
             // Restart the timer - user has 7 seconds to make the next move
-            GameTimer.Start(); 
+            gameTimer.Start(); 
         }
 
         /// <summary>
         /// Play the sound associated with the tile
         /// </summary>
         /// <param name="buttonNumber">The button number of the tile to play</param>
-        private void PlaySound(int buttonNumber)
+        private void playSound(int buttonNumber)
         {
             Stream soundStream = null;
             switch (buttonNumber)
@@ -179,15 +194,15 @@ namespace Edmon
         /// At the end of each game, check if a new record was set (sets the new record info if necessary),
         /// and re-initialize currentSequence and playLevel so user can't replay the same game sequence.
         /// </summary>
-        private void CheckForRecordAndResetGame()
+        private void checkForRecordAndResetGame()
         {
             if (playLevel - 1 > Records.RecordLevel)
             {
                 string name = "NAME";
-                if (ShowInputDialog(ref name) == DialogResult.OK)
+                if (showInputDialog(ref name) == DialogResult.OK)
                 {
                     Records.SetNewRecord(name, playLevel - 1);
-                    RefreshRecordLabels();
+                    refreshRecordLabels();
                 }
             }
             currentSequence = 0;
@@ -197,10 +212,10 @@ namespace Edmon
         /// <summary>
         /// Updates the record holder labels on the form
         /// </summary>
-        private void RefreshRecordLabels()
+        private void refreshRecordLabels()
         {
-            RecordLabel.Text = "Current Record: " + Records.RecordLevel;
-            RecordHolderLabel.Text = "Record Holder: " + 
+            recordLabel.Text = "Current Record: " + Records.RecordLevel;
+            recordHolderLabel.Text = "Record Holder: " + 
                 (string.IsNullOrEmpty(Records.RecordHolder) ? "None" : Records.RecordHolder);
         }
 
@@ -209,13 +224,13 @@ namespace Edmon
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void GameTimer_Tick(object sender, EventArgs e)
+        private void gameTimer_Tick(object sender, EventArgs e)
         {
-            GameTimer.Stop();
-            PlaySound(5);
+            gameTimer.Stop();
+            playSound(5);
             MessageBox.Show("Time's up! You successfully completed " + (playLevel - 1) + " levels " +
                 "on this round.", "Game Over", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            CheckForRecordAndResetGame();
+            checkForRecordAndResetGame();
         }
 
         #region DialogHelper
@@ -224,7 +239,7 @@ namespace Edmon
         /// </summary>
         /// <param name="input">The name entered by user</param>
         /// <returns></returns>
-        private static DialogResult ShowInputDialog(ref string input)
+        private static DialogResult showInputDialog(ref string input)
         {
             System.Drawing.Size size = new System.Drawing.Size(200, 150);
             Form inputBox = new Form();
@@ -269,6 +284,5 @@ namespace Edmon
             return result;
         }
         #endregion
-
     }
 }
